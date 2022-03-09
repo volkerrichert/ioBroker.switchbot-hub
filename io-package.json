@@ -1,7 +1,7 @@
 {
     "common": {
         "name": "switchbot-hub",
-        "version": "0.1.4",
+        "version": "0.1.2",
         "news": {
             "0.1.2": {
                 "en": "Sentry error reporting implemented",
