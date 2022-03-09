@@ -9,7 +9,7 @@
 const utils = require('@iobroker/adapter-core');
 const stateAttr = require(`${__dirname}/lib/state_attr.js`); // Load attribute library
 const irDeviceButtons = require(`${__dirname}/lib/irRemoteDevices.js`); // Load irRemote Button definitions
-const {default: axios} = require('axios');
+const { default: axios } = require('axios');
 
 const disableSentry = false; // Ensure to set to true during development !
 
@@ -82,7 +82,7 @@ class SwitchbotHub extends utils.Adapter {
 	 *
 	 * @param {string} [deviceId] - deviceId of SwitchBot device
 	 */
-	async dataRefresh(deviceId){
+	async dataRefresh(deviceId) {
 
 		let intervallTimer = intervallSettings.all;
 
@@ -113,7 +113,7 @@ class SwitchbotHub extends utils.Adapter {
 	 *
 	 * @param {string} [deviceId] - deviceId of SwitchBot device
 	 */
-	defineIntervallTime(deviceId){
+	defineIntervallTime(deviceId) {
 
 		try {
 			let timeInMs = 3600000; //  Default to 1 hour
@@ -183,7 +183,7 @@ class SwitchbotHub extends utils.Adapter {
 				baseURL: 'https://api.switch-bot.com',
 				url: url,
 				timeout: 1000,
-				headers: {'Authorization': this.config.openToken}
+				headers: { 'Authorization': this.config.openToken }
 			})
 				.then(response => response.data)
 				.catch(error => {
@@ -354,16 +354,16 @@ class SwitchbotHub extends utils.Adapter {
 				}
 
 				// Get all required IR buttons from Library
-				if (!irDeviceButtons[remoteArray[remoteControl].remoteType]){
+				if (!irDeviceButtons[remoteArray[remoteControl].remoteType]) {
 					this.log.error(`IR Remote Type ${[remoteArray[remoteControl].remoteType]} not yet implemented`);
 				}
 
 				const allIrButtons = irDeviceButtons[remoteArray[remoteControl].remoteType];
 
 				// Add default buttons if IR type !== Others
-				if (remoteArray[remoteControl].remoteType !== 'Others'){
-					allIrButtons.turnOn = {name: 'Turn device On'};
-					allIrButtons.turnOff = {name: 'Turn device Off'};
+				if (remoteArray[remoteControl].remoteType !== 'Others') {
+					allIrButtons.turnOn = { name: 'Turn device On' };
+					allIrButtons.turnOff = { name: 'Turn device Off' };
 				}
 
 				// Create IR specific channels
@@ -371,15 +371,15 @@ class SwitchbotHub extends utils.Adapter {
 
 					const common = {
 						name: allIrButtons[irButton].name,
-						type: allIrButtons[irButton]!== undefined ? allIrButtons[irButton].type || 'number' : 'number',
-						role: allIrButtons[irButton]!== undefined ? allIrButtons[irButton].type || 'button' : 'button',
+						type: allIrButtons[irButton] !== undefined ? allIrButtons[irButton].type || 'number' : 'number',
+						role: allIrButtons[irButton] !== undefined ? allIrButtons[irButton].type || 'button' : 'button',
 						write: true,
 					};
 
-					if (allIrButtons[irButton].states){
+					if (allIrButtons[irButton].states) {
 						common.states = allIrButtons[irButton].states;
 					}
-					if (allIrButtons[irButton].def){
+					if (allIrButtons[irButton].def) {
 						common.def = allIrButtons[irButton].def;
 					}
 					const stateName = irButton.replace(' ', '_');
@@ -390,7 +390,7 @@ class SwitchbotHub extends utils.Adapter {
 					this.subscribeStates(`${remoteArray[remoteControl].deviceId}.${stateName}`);
 				}
 			}
-		}catch (error) {
+		} catch (error) {
 			this.sendSentry(`[infraredRemoteDevices]`, `${error}`);
 		}
 	}
@@ -512,6 +512,7 @@ class SwitchbotHub extends utils.Adapter {
 				const deviceArray = id.split('.');
 				const deviceId = deviceArray[2];
 				const deviceType = this.devices[deviceArray[2]].deviceType;
+				const remoteType = this.devices[deviceArray[2]].remoteType;
 
 				// Default configuration for SmartBot POST api
 				const apiURL = `/v1.0/devices/${deviceId}/commands`;
@@ -563,34 +564,39 @@ class SwitchbotHub extends utils.Adapter {
 
 					}
 				} else { // State change of IR Remote  detected
-					apiData.parameter = `default`;
-					switch (deviceArray[3]) {
+					// apiData.parameter = `default`;
+					// switch (deviceArray[3]) {
 
-						case ('turnOn'):
-							apiData.command = `turnOn`;
-							break;
+					// 	case ('turnOn'):
+					// 		apiData.command = `turnOn`;
+					// 		break;
 
-						case ('turnOff'):
-							apiData.command = `turnOff`;
-							break;
+					// 	case ('turnOff'):
+					// 		apiData.command = `turnOff`;
+					// 		break;
 
-					}
+					// }
 
-					if (deviceArray[3] === 'temperature'
-						|| deviceArray[3] === 'mode'
-						|| deviceArray[3] === 'fan_speed'
-						|| deviceArray[3] === 'power_state'
-					){
-						this.log.error(`Command ${deviceArray[3]} not (yet) implemented`);
-						return;
-						//ToDo: Define routine to have correct state values
-						// apiData.command = `setAll`;
-						// apiData.parameter = `{
-						// 	temperature : ${},
-						// 	mode : ${},
-						// 	fan speed : ${},
-						// 	power state : ${},
-						// }`
+					// if (deviceArray[3] === 'temperature'
+					// 	|| deviceArray[3] === 'mode'
+					// 	|| deviceArray[3] === 'fan_speed'
+					// 	|| deviceArray[3] === 'power_state'
+					// ) {
+					// 	this.log.error(`Command ${deviceArray[3]} not (yet) implemented`);
+					// 	return;
+					// 	//ToDo: Define routine to have correct state values
+					// 	// apiData.command = `setAll`;
+					// 	// apiData.parameter = `{
+					// 	// 	temperature : ${},
+					// 	// 	mode : ${},
+					// 	// 	fan speed : ${},
+					// 	// 	power state : ${},
+					// 	// }`
+					// }
+					if (remoteType == 'TV') {
+						apiData.commandType = 'customize';
+						apiData.parameter = 'default';
+						apiData.command = deviceArray[3];
 					}
 				}
 
@@ -602,7 +608,7 @@ class SwitchbotHub extends utils.Adapter {
 
 					// Set ACK to true if API post  command successfully
 					if (apiResponse.statusCode === 100) {
-						this.setState(id, {ack: true});
+						this.setState(id, { ack: true });
 					} else {
 						this.log.error(`Unable to send command : ${apiResponse.message}`);
 					}
