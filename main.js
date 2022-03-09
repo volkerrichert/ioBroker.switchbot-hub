@@ -602,9 +602,9 @@ class SwitchbotHub extends utils.Adapter {
 
 				// Make API call
 				try {
-					this.log.error(`[sendState] ${JSON.stringify(this.devices[deviceId])}: ${JSON.stringify(apiData)}`);
+					this.log.info(`[sendState] ${JSON.stringify(this.devices[deviceId])}: ${JSON.stringify(apiData)}`);
 					const apiResponse = await this.apiCall(`${apiURL}`, `${JSON.stringify(apiData)}`);
-					this.log.error(`[sendState apiResponse]: ${JSON.stringify(apiResponse)}`);
+					this.log.info(`[sendState apiResponse]: ${JSON.stringify(apiResponse)}`);
 
 					// Set ACK to true if API post  command successfully
 					if (apiResponse.statusCode === 100) {
