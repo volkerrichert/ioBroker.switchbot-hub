@@ -182,7 +182,7 @@ class SwitchbotHub extends utils.Adapter {
 			return axios(url, {
 				baseURL: 'https://api.switch-bot.com',
 				url: url,
-				timeout: 1000,
+				timeout: 10000,
 				headers: { 'Authorization': this.config.openToken }
 			})
 				.then(response => response.data)
@@ -194,7 +194,7 @@ class SwitchbotHub extends utils.Adapter {
 			return axios.post(url, data, {
 				baseURL: 'https://api.switch-bot.com',
 				url: url,
-				timeout: 1000,
+				timeout: 10000,
 				headers: {
 					'Content-Type': 'application/json;charset=UTF-8',
 					'Authorization': this.config.openToken,
